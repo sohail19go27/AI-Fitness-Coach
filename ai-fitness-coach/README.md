@@ -19,7 +19,7 @@ Quick start
 npm install
 npm install framer-motion
 npm install jspdf html2canvas  # if you want PDF export
-```
+``` and move on.
 
 3. Run the dev server:
 
