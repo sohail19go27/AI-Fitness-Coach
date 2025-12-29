@@ -1,6 +1,6 @@
 # AI Fitness Coach
 
-Small Next.js + TypeScript app skeleton for an AI-powered fitness coach.
+Small Next.js + TypeScript app skeleton for an AI-Powered Fitness Coach.
 
 Features included in this scaffold:
 - Multi-step user form (client) to collect profile data
@@ -9,7 +9,7 @@ Features included in this scaffold:
 - Image generation proxy to OpenAI Images (`/api/generate-image`)
 - LocalStorage persistence and saved plans page with PDF export
 
-Quick start
+Quick start:
 
 1. Copy `.env.example` to `.env.local` and fill your API keys.
 
