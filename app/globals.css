@@ -1,0 +1,96 @@
+@import "../styles/tokens.css";
+@import "tailwindcss";
+
+:root {
+  --font-sans-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --primary: 14 165 233; /* sky-500 */
+  --primary-600: 2 132 199; /* sky-600 */
+  --muted: 148 163 184; /* zinc-400 */
+
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-sans-stack);
+  color: var(--primary-text);
+  background: linear-gradient(180deg, var(--bg-gradient-start), var(--bg-gradient-end));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Accessible utilities */
+.accent-gradient {
+  background-image: linear-gradient(90deg, #06b6d4 0%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.text-primary { color: rgb(var(--primary)); }
+.text-muted { color: rgb(var(--muted)); }
+.text-label { color: var(--label-text); }
+
+/* Input utility for consistent, token-driven form controls */
+.input {
+  border: 1px solid var(--input-border);
+  color: var(--label-text);
+  background: transparent;
+}
+.input::placeholder { color: rgba(15,23,36,0.4); }
+.input:focus { outline: none; box-shadow: 0 0 0 4px rgba(14,165,233,0.08); border-color: rgb(var(--primary)); }
+
+.btn-primary {
+  background-color: rgb(var(--primary));
+  color: white;
+  border: none;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.5);
+}
+.btn-primary:hover { background-color: rgb(var(--primary-600)); }
+
+.btn-ghost {
+  background: transparent;
+  color: rgb(148 163 184);
+  border-color: rgba(148,163,184,0.12);
+}
+.btn-ghost:hover { background-color: rgba(255,255,255,0.02); }
+
+.fade-up { transform: translateY(6px); opacity: 0; animation: fadeUp 520ms ease forwards; }
+@keyframes fadeUp { to { transform: translateY(0); opacity: 1; } }
+
+/* Section background that matches hero's gradient */
+.section-bg {
+  background: linear-gradient(180deg, var(--bg-gradient-start), var(--bg-gradient-end));
+}
+
+/* Muted text */
+.text-muted { color: var(--secondary-text); }
+
+/* Card surfaces */
+.card-surface { background: var(--card-surface); }
+.card-surface-strong { background: var(--card-surface-strong); }
+
+/* Card inner shadow to give a subtle 'floating' effect over dark backgrounds */
+.card-inner-shadow {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 12px 30px rgba(2,6,23,0.45);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* Accent utilities */
+.accent-gradient {
+  background: linear-gradient(90deg, var(--accent-start), var(--accent-mid), var(--accent-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--accent-start), var(--accent-mid));
+  color: #071322; /* dark text on bright button */
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.btn-ghost { background: transparent; border: 1px solid rgba(255,255,255,0.08); color: var(--primary-text); }
+
+/* subtle fade-in */
+.fade-up { transform: translateY(6px); opacity: 0; animation: fadeUp .6s ease forwards; }
+@keyframes fadeUp { to { transform: translateY(0); opacity: 1; } }
