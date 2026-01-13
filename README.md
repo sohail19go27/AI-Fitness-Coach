@@ -9,7 +9,7 @@ Features included in this scaffold:
 - Image generation proxy to OpenAI Images (`/api/generate-image`)
 - LocalStorage persistence and saved plans page with PDF export
 
-Quick start
+## Quick start
 
 1. Copy `.env.example` to `.env.local` and fill your API keys.
 
