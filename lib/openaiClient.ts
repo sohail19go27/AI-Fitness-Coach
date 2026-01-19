@@ -137,7 +137,7 @@ export async function callLLMWithPrompt(prompt: string, options?: CallOptions) {
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: {
         temperature: options?.temperature ?? 0.2,
-        maxOutputTokens: options?.maxTokens ?? 1024,
+        maxOutputTokens: options?.maxTokens ?? 4096,
       },
     } as any;
 

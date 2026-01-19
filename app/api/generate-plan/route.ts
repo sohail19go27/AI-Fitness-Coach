@@ -104,13 +104,24 @@ export async function POST(req: Request) {
 
     const prompt = buildWorkoutPrompt(userParse.data, { goal: body.goal, plan: body.plan });
 
-    // First attempt
-    const res = await openai.callLLMWithPrompt(prompt, { temperature: 0.2, maxTokens: 2500, retries: 2 });
-    const text = res.text ?? JSON.stringify(res.raw ?? {});
+    // First attempt with max token limit (4096 for Gemini)
+    let res = await openai.callLLMWithPrompt(prompt, { temperature: 0.2, maxTokens: 4096, retries: 2 });
+    let text = res.text ?? JSON.stringify(res.raw ?? {});
 
     let parsed = extractJSON(text);
+    
+    // Retry logic: if parsing fails, retry the LLM call
     if (!parsed) {
-      return NextResponse.json({ error: "Failed to parse plan from LLM", raw: text }, { status: 502 });
+      console.warn("First attempt failed to parse JSON, retrying with stricter prompt...");
+      const retryPrompt = `${prompt}\n\nPREVIOUS RESPONSE INVALID. Return complete JSON only. Start { end }.`;
+      
+      res = await openai.callLLMWithPrompt(retryPrompt, { temperature: 0.1, maxTokens: 4096, retries: 2 });
+      text = res.text ?? JSON.stringify(res.raw ?? {});
+      parsed = extractJSON(text);
+      
+      if (!parsed) {
+        return NextResponse.json({ error: "Failed to parse plan from LLM after retry", raw: text }, { status: 502 });
+      }
     }
 
     // Validate parsed plan against schema

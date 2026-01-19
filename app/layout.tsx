@@ -14,22 +14,27 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`antialiased font-sans`}>
-        <div className="min-h-screen flex flex-col bg-zinc-50 dark:bg-black">
-          <header className="border-b bg-white/60 dark:bg-black/60 border-zinc-200 dark:border-zinc-800">
-            <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-              <div className="flex items-center gap-3">
-                <span className="inline-block h-8 w-8 rounded-md bg-gradient-to-br from-indigo-500 to-pink-500" />
-                <span className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">AI Fitness Coach</span>
-              </div>
-              <nav className="text-sm text-zinc-600 dark:text-zinc-300">
-                <a className="mr-4 hover:underline" href="#">Home</a>
-                <a className="mr-4 hover:underline" href="#plans">Plans</a>
-                <a className="hover:underline" href="#about">About</a>
+        <div className="min-h-screen flex flex-col">
+          {/* Full-width header with backdrop blur */}
+          <header className="fixed top-0 left-0 right-0 z-50 w-full bg-black/40 backdrop-blur-md border-b border-white/10">
+            <div className="mx-auto max-w-7xl flex items-center justify-between px-6 h-16">
+              {/* Logo - aligned to far left */}
+              <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <span className="inline-block h-8 w-8 rounded-lg bg-gradient-to-br from-cyan-500 to-indigo-600 shadow-lg" />
+                <span className="text-lg font-bold text-white">AI Fitness Coach</span>
+              </a>
+              
+              {/* Navigation - aligned to far right */}
+              <nav className="flex items-center gap-6 text-sm font-medium text-slate-300">
+                <a className="hover:text-white transition-colors" href="/">Home</a>
+                <a className="hover:text-white transition-colors" href="/saved">Saved Plans</a>
+                <a className="hover:text-white transition-colors" href="#about">About</a>
               </nav>
             </div>
           </header>
 
-          <main className="flex-1">{children}</main>
+          {/* Add padding top to account for fixed header */}
+          <main className="flex-1 pt-16">{children}</main>
         </div>
       </body>
     </html>

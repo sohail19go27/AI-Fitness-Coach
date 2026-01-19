@@ -36,16 +36,16 @@ export default function PlanDisplay({ plan }: PlanProps) {
   }
 
   return (
-    <div className="rounded bg-white p-4">
+    <div className="rounded bg-white p-4 text-slate-900">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex gap-3">
-          <button onClick={() => setTab("workout")} className={`px-3 py-1 ${tab === "workout" ? "bg-indigo-600 text-white" : "bg-zinc-100"}`}>Workout</button>
-          <button onClick={() => setTab("diet")} className={`px-3 py-1 ${tab === "diet" ? "bg-indigo-600 text-white" : "bg-zinc-100"}`}>Diet</button>
-          <button onClick={() => setTab("tips")} className={`px-3 py-1 ${tab === "tips" ? "bg-indigo-600 text-white" : "bg-zinc-100"}`}>Tips</button>
+          <button onClick={() => setTab("workout")} className={`px-3 py-1 ${tab === "workout" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-slate-900"}`}>Workout</button>
+          <button onClick={() => setTab("diet")} className={`px-3 py-1 ${tab === "diet" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-slate-900"}`}>Diet</button>
+          <button onClick={() => setTab("tips")} className={`px-3 py-1 ${tab === "tips" ? "bg-indigo-600 text-white" : "bg-zinc-100 text-slate-900"}`}>Tips</button>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => speakSection(tab)} className="rounded border px-3 py-1">{isPlaying ? 'Playing' : 'Read'}</button>
-          <button onClick={() => stop()} className="rounded border px-3 py-1">Stop</button>
+          <button onClick={() => speakSection(tab)} className="rounded border px-3 py-1 text-slate-900">{isPlaying ? 'Playing' : 'Read'}</button>
+          <button onClick={() => stop()} className="rounded border px-3 py-1 text-slate-900">Stop</button>
           <button onClick={save} className="rounded bg-green-600 px-3 py-1 text-white">Save</button>
         </div>
       </div>
@@ -53,7 +53,7 @@ export default function PlanDisplay({ plan }: PlanProps) {
       {tab === "workout" && (
         <div className="grid gap-4">
           {(plan.workoutPlan?.dayWise || []).map((day: any, idx: number) => (
-            <div key={idx} className="rounded border p-3">
+            <div key={idx} className="rounded border p-3 text-slate-900">
               <div className="mb-2 flex items-center justify-between">
                 <h4 className="font-semibold">{day.day}</h4>
               </div>
@@ -69,15 +69,15 @@ export default function PlanDisplay({ plan }: PlanProps) {
 
       {tab === "diet" && (
         <div className="grid gap-4">
-          <div className="rounded border p-3">
+          <div className="rounded border p-3 text-slate-900">
             <h4 className="font-semibold">Breakfast</h4>
             <ul className="mt-2 list-disc pl-5">{(plan.dietPlan?.breakfast || []).map((it: string, i: number) => <li key={i}>{it}</li>)}</ul>
           </div>
-          <div className="rounded border p-3">
+          <div className="rounded border p-3 text-slate-900">
             <h4 className="font-semibold">Lunch</h4>
             <ul className="mt-2 list-disc pl-5">{(plan.dietPlan?.lunch || []).map((it: string, i: number) => <li key={i}>{it}</li>)}</ul>
           </div>
-          <div className="rounded border p-3">
+          <div className="rounded border p-3 text-slate-900">
             <h4 className="font-semibold">Dinner</h4>
             <ul className="mt-2 list-disc pl-5">{(plan.dietPlan?.dinner || []).map((it: string, i: number) => <li key={i}>{it}</li>)}</ul>
           </div>
@@ -86,7 +86,7 @@ export default function PlanDisplay({ plan }: PlanProps) {
 
       {tab === "tips" && (
         <div>
-          <div className="rounded border p-3">
+          <div className="rounded border p-3 text-slate-900">
             <h4 className="font-semibold">Tips</h4>
             <ul className="mt-2 list-disc pl-5">{(plan.tips || []).map((t: string, i: number) => <li key={i}>{t}</li>)}</ul>
             <div className="mt-3 italic">"{plan.motivationQuote}"</div>

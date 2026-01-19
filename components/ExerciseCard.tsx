@@ -45,7 +45,7 @@ export const ExerciseCard: React.FC<Props> = ({ name, size = "512x512", classNam
   }
 
   return (
-    <div className={`rounded-md border p-3 ${className}`}>
+    <div className={`rounded-md border p-3 text-slate-900 ${className}`}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <h4 className="text-sm font-semibold">{name}</h4>

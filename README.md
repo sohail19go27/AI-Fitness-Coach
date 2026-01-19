@@ -6,7 +6,7 @@ Features included in this scaffold:
 - Multi-step user form (client) to collect profile data
 - Server API route calling an LLM to generate structured JSON plans (`/api/generate-plan`)
 - Text-to-speech proxy using ElevenLabs (`/api/text-to-speech`)
-- Image generation proxy to OpenAI Images (`/api/generate-image`)
+- Image generation using Google Gemini Imagen (`/api/generate-image`)
 - LocalStorage persistence and saved plans page with PDF export
 
 Quick start
@@ -28,15 +28,19 @@ npm run dev
 ```
 
 Environment variables
-- `OPENAI_API_KEY`: OpenAI (or compatible) API key
+- `GEMINI_API_KEY`: Google Gemini API key (used for both text and image generation)
+- `GEMINI_MODEL`: default Gemini model (e.g., gemini-1.5-flash)
+- `GEMINI_API_URL`: Optional custom Gemini text API base URL
+- `GEMINI_IMAGE_API_URL`: Optional custom Gemini image generation endpoint
+- `OPENAI_API_KEY`: OpenAI (or compatible) API key (optional fallback)
 - `OPENAI_API_URL`: Optional custom API base URL
 - `OPENAI_MODEL`: default LLM model
-- `OPENAI_IMAGES_URL`: optional images endpoint
 - `ELEVENLABS_API_KEY`: ElevenLabs API key
 - `ELEVENLABS_VOICE_ID`: Optional default voice id
 
 Notes
 - The generate-plan API instructs the LLM to return strict JSON. The server validates the response with Zod and will attempt an automated repair prompt when the JSON doesn't match the schema.
+- Image generation uses Google Gemini's Imagen model via REST API (no SDK required) and returns base64 data URLs.
 - This scaffold is intended as a starting point, not a finished product. You should secure API keys (don't commit `.env.local`), add rate-limiting, usage monitoring, and tests for production readiness.
 
 Deployment
