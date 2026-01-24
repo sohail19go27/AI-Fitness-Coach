@@ -57,9 +57,16 @@ export default function PlanDisplay({ plan }: PlanProps) {
               <div className="mb-2 flex items-center justify-between">
                 <h4 className="font-semibold">{day.day}</h4>
               </div>
-              <div className="grid gap-3">
+              <div className="space-y-2">
                 {(day.exercises || []).map((ex: any, i: number) => (
-                  <ExerciseCard key={i} name={ex.name} onGenerate={() => {}} />
+                  <ExerciseCard 
+                    key={i} 
+                    name={ex.name} 
+                    sets={ex.sets}
+                    reps={ex.reps}
+                    rest={ex.rest}
+                    onGenerate={() => {}} 
+                  />
                 ))}
               </div>
             </div>
