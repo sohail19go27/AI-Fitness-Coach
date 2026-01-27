@@ -26,10 +26,12 @@ export const ExerciseCard: React.FC<Props> = ({
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [imageLoadError, setImageLoadError] = useState(false);
 
   async function generateImage() {
     setLoading(true);
     setError(null);
+    setImageLoadError(false);
     try {
       // Fetch with cache: "no-store" to prevent cached responses
       const res = await fetch("/api/generate-image", {
@@ -51,7 +53,7 @@ export const ExerciseCard: React.FC<Props> = ({
         setError("No image returned from API");
       } else {
         // Append client-side timestamp to ensure unique URL
-        const uniqueUrl = `${url}&client_ts=${Date.now()}`;
+        const uniqueUrl = `${url}${url.includes('?') ? '&' : '?'}client_ts=${Date.now()}`;
         setImageUrl(uniqueUrl);
         setIsExpanded(true); // Auto-expand when image is generated
         onGenerate?.(uniqueUrl);
@@ -62,6 +64,13 @@ export const ExerciseCard: React.FC<Props> = ({
       setLoading(false);
     }
   }
+
+  // Handle image load error - hide image silently
+  const handleImageError = () => {
+    setImageLoadError(true);
+    setImageUrl(null);
+    setIsExpanded(false);
+  };
 
   // Build sets/reps text
   const detailsText = [
@@ -125,9 +134,9 @@ export const ExerciseCard: React.FC<Props> = ({
         <div className="mt-2 text-xs text-red-600 px-4">{error}</div>
       )}
 
-      {/* Collapsible image container */}
+      {/* Collapsible image container - only render if imageUrl exists and no load error */}
       <AnimatePresence>
-        {imageUrl && isExpanded && (
+        {imageUrl && isExpanded && !imageLoadError && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
@@ -142,6 +151,7 @@ export const ExerciseCard: React.FC<Props> = ({
                 alt={`${name} demonstration`} 
                 className="w-full h-auto object-cover"
                 loading="lazy"
+                onError={handleImageError}
               />
             </div>
           </motion.div>
