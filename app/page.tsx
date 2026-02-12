@@ -2,6 +2,7 @@
 
 import Hero from "../components/Hero";
 import MultiStepForm from "../components/MultiStepForm";
+import ImageGenerator from "../components/ImageGenerator";
 import { useRef } from "react";
 
 export default function Home() {
@@ -25,6 +26,12 @@ export default function Home() {
 
         <main id="multi-step-form" className="relative z-10 mx-auto max-w-4xl px-6 pb-20">
           <MultiStepForm />
+
+          <div className="mt-20">
+            <h2 className="text-3xl font-bold text-center text-white mb-6">AI Image Studio</h2>
+            <p className="text-slate-300 text-center mb-8">Visualize your fitness goals with our free AI image generator.</p>
+            <ImageGenerator />
+          </div>
         </main>
       </div>
     </div>

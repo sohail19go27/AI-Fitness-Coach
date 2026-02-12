@@ -1,62 +1,65 @@
+
 import { NextResponse } from "next/server";
-
-// Map exercise names to static image filenames
-function getStaticExerciseImage(exerciseName: string): string {
-  // Normalize exercise name to filename format
-  const normalized = exerciseName
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, "")
-    .replace(/\s+/g, "-");
-
-  // Common exercise mappings
-  const exerciseMap: Record<string, string> = {
-    "barbell-bench-press": "barbell-bench-press.svg",
-    "bench-press": "barbell-bench-press.svg",
-    "bent-over-rows": "bent-over-rows.svg",
-    "bentover-rows": "bent-over-rows.svg",
-    "bent-over-row": "bent-over-rows.svg",
-    "overhead-press": "overhead-press.svg",
-    "shoulder-press": "overhead-press.svg",
-    "bicep-curls": "bicep-curls.svg",
-    "bicep-curl": "bicep-curls.svg",
-    "barbell-squats": "barbell-squats.svg",
-    "squat": "barbell-squats.svg",
-    "squats": "barbell-squats.svg",
-    "romanian-deadlifts": "romanian-deadlifts.svg",
-    "deadlift": "romanian-deadlifts.svg",
-    "deadlifts": "romanian-deadlifts.svg",
-    "leg-press": "leg-press.svg",
-    "plank": "plank.svg",
-    "incline-dumbbell-press": "incline-dumbbell-press.svg",
-    "lat-pulldowns": "lat-pulldowns.svg",
-    "lat-pulldown": "lat-pulldowns.svg",
-    "dumbbell-lateral-raises": "dumbbell-lateral-raises.svg",
-    "lateral-raises": "dumbbell-lateral-raises.svg",
-    "lateral-raise": "dumbbell-lateral-raises.svg",
-    "triceps-pushdowns": "triceps-pushdowns.svg",
-    "tricep-pushdown": "triceps-pushdowns.svg",
-    "triceps-pushdown": "triceps-pushdowns.svg",
-  };
-
-  // Return mapped image or default workout image
-  const filename = exerciseMap[normalized] || "default-workout.svg";
-  return `/exercises/${filename}`;
-}
 
 export async function POST(req: Request) {
   try {
     const { prompt } = await req.json();
-    if (!prompt) {
-      return NextResponse.json({ error: "Missing prompt" }, { status: 400 });
+
+    if (!prompt || typeof prompt !== "string") {
+      return NextResponse.json(
+        { error: "Prompt is required" },
+        { status: 400 }
+      );
     }
 
-    // Return static exercise image URL directly
-    const staticImageUrl = getStaticExerciseImage(prompt);
-    return NextResponse.json({ url: staticImageUrl });
+    const hfApiKey = process.env.HF_API_KEY;
 
-  } catch (err) {
-    console.error("Image generation error:", err);
-    // Final fallback to generic workout image
-    return NextResponse.json({ url: "/exercises/default-workout.svg" });
+    if (!hfApiKey) {
+      return NextResponse.json(
+        { error: "Hugging Face API key is missing" },
+        { status: 500 }
+      );
+    }
+
+    // Enhance prompt for fitness specific context
+    const finalPrompt = `A realistic photo of a person performing ${prompt} in a modern gym, proper form, fitness photography, natural lighting, high detail, 4k`;
+
+    // Hugging Face Inference API
+    const response = await fetch(
+      "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1",
+      {
+        headers: {
+          Authorization: `Bearer ${hfApiKey}`,
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({ inputs: finalPrompt }),
+      }
+    );
+
+    if (!response.ok) {
+      // Handle 503 (Model Loading) or other errors
+      if (response.status === 503) {
+        const errorData = await response.json();
+        return NextResponse.json(
+          { error: `Model is loading. Estimated time: ${errorData.estimated_time}s. Please try again.` },
+          { status: 503 }
+        );
+      }
+      throw new Error(`Hugging Face API Error: ${response.statusText}`);
+    }
+
+    const buffer = await response.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+    const dataUrl = `data:image/jpeg;base64,${base64}`;
+
+    return NextResponse.json({ url: dataUrl });
+
+  } catch (error) {
+    console.error("Image generation error:", error);
+    return NextResponse.json(
+      { error: "Failed to generate image" },
+      { status: 500 }
+    );
   }
 }

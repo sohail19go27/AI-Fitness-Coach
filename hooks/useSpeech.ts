@@ -1,108 +1,67 @@
-"use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState, useEffect, useRef, useCallback } from 'react';
 
-type UseSpeech = {
-  speak: (text: string, voice?: string) => Promise<void>;
+interface UseSpeechReturn {
+  speak: (text: string) => void;
   stop: () => void;
-  isPlaying: boolean;
-  isLoading: boolean;
-  error: string | null;
-  audioUrl: string | null;
-};
-
-export function useSpeech(): UseSpeech {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    audioRef.current = new Audio();
-    const a = audioRef.current;
-    const onEnd = () => setIsPlaying(false);
-    a.addEventListener("ended", onEnd);
-    a.addEventListener("pause", () => setIsPlaying(false));
-    a.addEventListener("play", () => setIsPlaying(true));
-    return () => {
-      a.pause();
-      a.removeEventListener("ended", onEnd);
-      a.src = "";
-      if (audioUrl) {
-        try {
-          URL.revokeObjectURL(audioUrl);
-        } catch {}
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function speak(text: string, voice?: string) {
-    setError(null);
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/text-to-speech", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, voice }),
-      });
-
-      if (!res.ok) {
-        const txt = await res.text();
-        setError(txt || `TTS request failed (${res.status})`);
-        setIsLoading(false);
-        return;
-      }
-
-      const contentType = res.headers.get("content-type") || "";
-      if (!contentType.startsWith("audio")) {
-        const txt = await res.text();
-        setError(txt || "Unexpected TTS response");
-        setIsLoading(false);
-        return;
-      }
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      // cleanup previous
-      if (audioUrl) {
-        try {
-          URL.revokeObjectURL(audioUrl);
-        } catch {}
-      }
-      setAudioUrl(url);
-
-      if (!audioRef.current) audioRef.current = new Audio();
-      audioRef.current.src = url;
-      await audioRef.current.play();
-      setIsPlaying(true);
-    } catch (err: any) {
-      setError(err?.message ?? String(err));
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  function stop() {
-    try {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-      }
-      if (audioUrl) {
-        try {
-          URL.revokeObjectURL(audioUrl);
-        } catch {}
-        setAudioUrl(null);
-      }
-    } catch (err) {
-      /* ignore */
-    }
-    setIsPlaying(false);
-  }
-
-  return { speak, stop, isPlaying, isLoading, error, audioUrl };
+  isSpeaking: boolean;
+  isSupported: boolean;
 }
 
-export default useSpeech;
+export const useSpeech = (): UseSpeechReturn => {
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isSupported, setIsSupported] = useState(false);
+  const synthRef = useRef<SpeechSynthesis | null>(null);
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      setIsSupported(true);
+      synthRef.current = window.speechSynthesis;
+    }
+  }, []);
+
+  const stop = useCallback(() => {
+    if (synthRef.current) {
+      synthRef.current.cancel();
+      setIsSpeaking(false);
+    }
+  }, []);
+
+  const speak = useCallback((text: string) => {
+    if (!synthRef.current) return;
+
+    // Cancel any current speaking
+    stop();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utteranceRef.current = utterance;
+
+    // improved voice selection: prefer 'Google US English' or acceptable default
+    const voices = synthRef.current.getVoices();
+    const preferredVoice = voices.find(voice => voice.name === 'Google US English') || voices.find(voice => voice.lang.startsWith('en')) || null;
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+    }
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    synthRef.current.speak(utterance);
+  }, [stop]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stop();
+    };
+  }, [stop]);
+
+  return {
+    speak,
+    stop,
+    isSpeaking,
+    isSupported,
+  };
+};
