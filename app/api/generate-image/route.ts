@@ -12,48 +12,17 @@ export async function POST(req: Request) {
       );
     }
 
-    const hfApiKey = process.env.HF_API_KEY;
+    // Enhance prompt for fitness specific context and URL encode it
+    const finalPrompt = `A realistic fitness photo of a person performing ${prompt} in a modern gym, proper form, cinematic lighting, high detail, 4k, photorealistic`;
+    const encodedPrompt = encodeURIComponent(finalPrompt);
 
-    if (!hfApiKey) {
-      return NextResponse.json(
-        { error: "Hugging Face API key is missing" },
-        { status: 500 }
-      );
-    }
+    // Using Pollinations AI - A free, no-key required image generation API
+    // We append a random seed to ensure a unique image is generated each time
+    const seed = Math.floor(Math.random() * 1000000);
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&seed=${seed}`;
 
-    // Enhance prompt for fitness specific context
-    const finalPrompt = `A realistic photo of a person performing ${prompt} in a modern gym, proper form, fitness photography, natural lighting, high detail, 4k`;
-
-    // Hugging Face Inference API
-    const response = await fetch(
-      "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1",
-      {
-        headers: {
-          Authorization: `Bearer ${hfApiKey}`,
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({ inputs: finalPrompt }),
-      }
-    );
-
-    if (!response.ok) {
-      // Handle 503 (Model Loading) or other errors
-      if (response.status === 503) {
-        const errorData = await response.json();
-        return NextResponse.json(
-          { error: `Model is loading. Estimated time: ${errorData.estimated_time}s. Please try again.` },
-          { status: 503 }
-        );
-      }
-      throw new Error(`Hugging Face API Error: ${response.statusText}`);
-    }
-
-    const buffer = await response.arrayBuffer();
-    const base64 = Buffer.from(buffer).toString('base64');
-    const dataUrl = `data:image/jpeg;base64,${base64}`;
-
-    return NextResponse.json({ url: dataUrl });
+    // Return the URL directly. Pollinations generates the image on the fly when the URL is loaded.
+    return NextResponse.json({ url: imageUrl });
 
   } catch (error) {
     console.error("Image generation error:", error);
