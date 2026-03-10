@@ -19,10 +19,27 @@ export async function POST(req: Request) {
     // Using Pollinations AI - A free, no-key required image generation API
     // We append a random seed to ensure a unique image is generated each time
     const seed = Math.floor(Math.random() * 1000000);
-    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&seed=${seed}`;
+    const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=800&nologo=true&seed=${seed}`;
 
-    // Return the URL directly. Pollinations generates the image on the fly when the URL is loaded.
-    return NextResponse.json({ url: imageUrl });
+    try {
+      // Fetch the image server-side to prevent browser timeout/CORS issues on the img tag
+      const imageRes = await fetch(pollinationsUrl, { signal: AbortSignal.timeout(15000) }); // 15s timeout
+      
+      if (!imageRes.ok) {
+        throw new Error(`Pollinations API responded with status: ${imageRes.status}`);
+      }
+      
+      const arrayBuffer = await imageRes.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const base64Image = `data:${imageRes.headers.get('content-type') || 'image/jpeg'};base64,${buffer.toString('base64')}`;
+      
+      return NextResponse.json({ url: base64Image });
+    } catch (fetchError) {
+      console.error("Pollinations generation failed or timed out, using fallback:", fetchError);
+      // Generic high-quality gym fallback if Pollinations is down or too slow
+      const fallbackUrl = "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1024&auto=format&fit=crop";
+      return NextResponse.json({ url: fallbackUrl });
+    }
 
   } catch (error) {
     console.error("Image generation error:", error);
